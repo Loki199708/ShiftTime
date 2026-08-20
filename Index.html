@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Management Ture</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f2f4f8;
+    color: #222;
+}
+
+.app {
+    max-width: 600px;
+    margin: auto;
+    padding: 15px;
+}
+
+h1 {
+    text-align: center;
+    margin: 10px 0 15px;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.today-button {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 12px;
+    background: #2563eb;
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.backup-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.backup-buttons button {
+    min-height: 48px;
+    border: 1px solid #dbeafe;
+    border-radius: 10px;
+    background: white;
+    color: #2563eb;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 15px;
+    border-radius: 12px 12px 0 0;
+}
+
+.calendar-header button {
+    border: none;
+    background: #2563eb;
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: 24px;
+}
+
+#monthYear {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.weekdays,
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.weekdays {
+    background: white;
+    padding: 10px;
+}
+
+.weekdays div {
+    text-align: center;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.calendar {
+    background: white;
+    padding: 10px;
+    border-radius: 0 0 12px 12px;
+}
+
+.day {
+    min-height: 75px;
+    border: 1px solid #ddd;
+    border-radius: 9px;
+    padding: 6px;
+    background: #fafafa;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.empty {
+    border: none;
+    background: transparent;
+    cursor: default;
+}
+
+.today {
+    border: 3px solid #2563eb;
+}
+
+.day-number {
+    font-weight: bold;
+}
+
+.calendar-shift {
+    margin-top: 4px;
+    padding: 3px 4px;
+    border-radius: 5px;
+    font-size: 9px;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    z-index: 100;
+}
+
+.modal-content {
+    background: white;
+    width: 100%;
+    max-width: 450px;
+    border-radius: 18px;
+    padding: 20px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-content h2 {
+    text-align: center;
+    margin-top: 0;
+}
+
+.saved-shift {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    background: #f3f4f6;
+    border-left: 6px solid #2563eb;
+}
+
+.saved-shift-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.saved-shift-name {
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.saved-shift-hours,
+.saved-shift-notes {
+    font-size: 13px;
+    color: #666;
+    margin-top: 4px;
+}
+
+.shift-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.small-button {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 8px;
+    font-size: 17px;
+}
+
+.edit-button {
+    background: #dbeafe;
+}
+
+.delete-button {
+    background: #fee2e2;
+}
+
+.add-shift-button {
+    width: 100%;
+    min-height: 55px;
+    margin-top: 10px;
+    border: 2px dashed #2563eb;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.manage-types-button {
+    width: 100%;
+    margin-top: 12px;
+    min-height: 48px;
+    border: none;
+    border-radius: 10px;
+    background: #4b5563;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.form-section {
+    margin-top: 18px;
+}
+
+label {
+    display: block;
+    margin-bottom: 7px;
+    font-weight: bold;
+}
+
+select,
+input,
+textarea {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+    background: white;
+}
+
+textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+.form-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.form-buttons button {
+    min-height: 50px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.save-button {
+    background: #2563eb;
+    color: white;
+}
+
+.cancel-button {
+    background: #e5e7eb;
+}
+
+.back-button {
+    width: 100%;
+    margin-top: 12px;
+    min-height: 48px;
+    border: none;
+    border-radius: 10px;
+    background: #e5e7eb;
+    font-weight: bold;
+}
+
+.danger-button {
+    width: 100%;
+    margin-top: 10px;
+    min-height: 48px;
+    border: none;
+    border-radius: 10px;
+    background: #dc2626;
+    color: white;
+    font-weight: bold;
+}
+
+.type-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: #f3f4f6;
+    border-radius: 10px;
+    margin-bottom: 8px;
+}
+
+.type-color {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.type-info {
+    flex: 1;
+}
+
+.type-name {
+    font-weight: bold;
+}
+
+.type-hours {
+    font-size: 13px;
+    color: #666;
+}
+
+.empty-message {
+    text-align: center;
+    color: #777;
+    padding: 20px 10px;
+}
+
+@media(max-width:380px) {
+    .calendar-shift {
+        font-size: 8px;
+    }
+
+    .day {
+        min-height: 65px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<h1>📅 Management Ture</h1>
+
+<button class="today-button" onclick="goToday()">
+📍 Astăzi
+</button>
+
+<div class="backup-buttons">
+
+<button onclick="exportData()">
+📤 Exportă
+</button>
+
+<button onclick="document.getElementById('importFile').click()">
+📥 Importă
+</button>
+
+</div>
+
+<input
+    type="file"
+    id="importFile"
+    accept=".json"
+    style="display:none"
+    onchange="importData(event)"
+>
+
+<div class="calendar-header">
+
+<button onclick="previousMonth()">‹</button>
+
+<div id="monthYear"></div>
+
+<button onclick="nextMonth()">›</button>
+
+</div>
+
+<div class="weekdays">
+
+<div>L</div>
+<div>Ma</div>
+<div>Mi</div>
+<div>J</div>
+<div>V</div>
+<div>S</div>
+<div>D</div>
+
+</div>
+
+<div id="calendar" class="calendar"></div>
+
+</div>
+
+
+<!-- ZI -->
+
+<div id="dayModal" class="modal">
+
+<div class="modal-content">
+
+<h2 id="selectedDateTitle"></h2>
+
+<div id="dayShiftList"></div>
+
+<button
+class="add-shift-button"
+onclick="showAddShiftForm()">
+
+＋ Adaugă schimb
+
+</button>
+
+<button
+class="manage-types-button"
+onclick="showTypes()">
+
+⚙️ Gestionează tipurile
+
+</button>
+
+<button
+class="back-button"
+onclick="closeDayModal()">
+
+Închide
+
+</button>
+
+</div>
+
+</div>
+
+
+<!-- SCHIMB -->
+
+<div id="shiftModal" class="modal">
+
+<div class="modal-content">
+
+<h2 id="shiftFormTitle">
+Adaugă schimb
+</h2>
+
+<label>
+Tipul schimbului
+</label>
+
+<select id="shiftTypeSelect"></select>
+
+<button
+class="manage-types-button"
+onclick="showCreateType()">
+
+＋ Creează tip nou
+
+</button>
+
+<div class="form-section">
+
+<label>
+Observații
+</label>
+
+<textarea
+id="shiftNotes"
+placeholder="Observații...">
+</textarea>
+
+</div>
+
+<div class="form-buttons">
+
+<button
+class="cancel-button"
+onclick="closeShiftModal()">
+
+Anulează
+
+</button>
+
+<button
+class="save-button"
+onclick="saveShift()">
+
+✓ Salvează
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- TIP NOU -->
+
+<div id="typeModal" class="modal">
+
+<div class="modal-content">
+
+<h2 id="typeFormTitle">
+Creează tip de schimb
+</h2>
+
+<label>
+Numele schimbului
+</label>
+
+<input
+id="typeName"
+type="text"
+placeholder="Ex: Dimineață"
+>
+
+<div class="form-section">
+
+<label>
+Ora început
+</label>
+
+<input
+id="typeStart"
+type="time"
+>
+
+</div>
+
+<div class="form-section">
+
+<label>
+Ora sfârșit
+</label>
+
+<input
+id="typeEnd"
+type="time"
+>
+
+</div>
+
+<div class="form-section">
+
+<label>
+Culoare
+</label>
+
+<input
+id="typeColor"
+type="color"
+value="#2563eb"
+style="height:55px;padding:5px;"
+>
+
+</div>
+
+<div class="form-buttons">
+
+<button
+class="cancel-button"
+onclick="closeTypeModal()">
+
+Anulează
+
+</button>
+
+<button
+class="save-button"
+onclick="saveType()">
+
+✓ Salvează
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- TIPURI -->
+
+<div id="typesModal" class="modal">
+
+<div class="modal-content">
+
+<h2>⚙️ Tipuri de schimb</h2>
+
+<div id="typeList"></div>
+
+<button
+class="add-shift-button"
+onclick="showCreateType()">
+
+＋ Creează tip nou
+
+</button>
+
+<button
+class="back-button"
+onclick="closeTypesModal()">
+
+Închide
+
+</button>
+
+</div>
+
+</div>
+
+
+<script>
+
+let currentDate = new Date();
+
+let selectedDate = null;
+
+let editingShiftId = null;
+
+let editingTypeId = null;
+
+let shifts =
+JSON.parse(localStorage.getItem("shifts")) || {};
+
+let shiftTypes =
+JSON.parse(localStorage.getItem("shiftTypes")) || [];
+
+
+if(shiftTypes.length === 0) {
+
+shiftTypes = [
+
+{
+id:"default1",
+name:"Tura 1",
+start:"",
+end:"",
+color:"#60a5fa"
+},
+
+{
+id:"default2",
+name:"Tura 2",
+start:"",
+end:"",
+color:"#4ade80"
+},
+
+{
+id:"default3",
+name:"Tura 3",
+start:"",
+end:"",
+color:"#facc15"
+},
+
+{
+id:"defaultNight",
+name:"Noapte",
+start:"",
+end:"",
+color:"#a78bfa"
+},
+
+{
+id:"defaultFree",
+name:"Liber",
+start:"",
+end:"",
+color:"#d1d5db"
+}
+
+];
+
+saveTypes();
+
+}
+
+
+const monthNames = [
+"Ianuarie",
+"Februarie",
+"Martie",
+"Aprilie",
+"Mai",
+"Iunie",
+"Iulie",
+"August",
+"Septembrie",
+"Octombrie",
+"Noiembrie",
+"Decembrie"
+];
+
+
+function saveTypes() {
+
+localStorage.setItem(
+"shiftTypes",
+JSON.stringify(shiftTypes)
+);
+
+}
+
+
+function saveShifts() {
+
+localStorage.setItem(
+"shifts",
+JSON.stringify(shifts)
+);
+
+}
+
+
+function renderCalendar() {
+
+const calendar =
+document.getElementById("calendar");
+
+calendar.innerHTML="";
+
+const year =
+currentDate.getFullYear();
+
+const month =
+currentDate.getMonth();
+
+document.getElementById("monthYear")
+.textContent =
+monthNames[month]+" "+year;
+
+const firstDay =
+new Date(year,month,1);
+
+let startingDay =
+firstDay.getDay();
+
+startingDay =
+startingDay===0
+?6
+:startingDay-1;
+
+const daysInMonth =
+new Date(year,month+1,0)
+.getDate();
+
+
+for(let i=0;i<startingDay;i++){
+
+const empty =
+document.createElement("div");
+
+empty.className="day empty";
+
+calendar.appendChild(empty);
+
+}
+
+
+for(let day=1;day<=daysInMonth;day++){
+
+const dateKey =
+`${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+
+const element =
+document.createElement("div");
+
+element.className="day";
+
+element.innerHTML =
+`<div class="day-number">${day}</div>`;
+
+const today = new Date();
+
+if(
+day===today.getDate() &&
+month===today.getMonth() &&
+year===today.getFullYear()
+){
+
+element.classList.add("today");
+
+}
+
+
+const dayShifts =
+shifts[dateKey] || [];
+
+
+dayShifts.forEach(shift=>{
+
+const type =
+shiftTypes.find(
+t=>t.id===shift.typeId
+);
+
+if(!type)return;
+
+const item =
+document.createElement("div");
+
+item.className="calendar-shift";
+
+item.textContent=type.name;
+
+item.style.background=type.color;
+
+item.style.color=
+getContrastColor(type.color);
+
+element.appendChild(item);
+
+});
+
+
+element.onclick=()=>{
+openDayModal(dateKey);
+};
+
+calendar.appendChild(element);
+
+}
+
+}
+
+
+function getContrastColor(hex){
+
+const r=parseInt(hex.substring(1,3),16);
+
+const g=parseInt(hex.substring(3,5),16);
+
+const b=parseInt(hex.substring(5,7),16);
+
+const brightness=
+(r*299+g*587+b*114)/1000;
+
+return brightness>155
+?"#111827"
+:"#ffffff";
+
+}
+
+
+function openDayModal(dateKey){
+
+selectedDate=dateKey;
+
+document.getElementById(
+"selectedDateTitle"
+).textContent =
+"📅 "+formatDate(dateKey);
+
+renderDayShifts();
+
+document.getElementById(
+"dayModal"
+).style.display="flex";
+
+}
+
+
+function renderDayShifts(){
+
+const list =
+document.getElementById(
+"dayShiftList"
+);
+
+list.innerHTML="";
+
+const dayShifts =
+shifts[selectedDate] || [];
+
+
+if(dayShifts.length===0){
+
+list.innerHTML=
+`<div class="empty-message">
+Nu ai schimburi pentru această zi.
+</div>`;
+
+return;
+
+}
+
+
+dayShifts.forEach(shift=>{
+
+const type =
+shiftTypes.find(
+t=>t.id===shift.typeId
+);
+
+if(!type)return;
+
+const item =
+document.createElement("div");
+
+item.className="saved-shift";
+
+item.style.borderLeftColor=
+type.color;
+
+let hours="";
+
+if(type.start && type.end){
+
+hours=
+`${type.start} - ${type.end}`;
+
+}
+
+
+item.innerHTML=`
+
+<div class="saved-shift-info">
+
+<div class="saved-shift-name">
+${escapeHtml(type.name)}
+</div>
+
+${hours?
+`<div class="saved-shift-hours">
+⏰ ${hours}
+</div>`:""}
+
+${shift.notes?
+`<div class="saved-shift-notes">
+📝 ${escapeHtml(shift.notes)}
+</div>`:""}
+
+</div>
+
+<div class="shift-actions">
+
+<button
+class="small-button edit-button"
+onclick="editShift('${shift.id}')">
+
+✏️
+
+</button>
+
+<button
+class="small-button delete-button"
+onclick="deleteShift('${shift.id}')">
+
+🗑️
+
+</button>
+
+</div>
+
+`;
+
+list.appendChild(item);
+
+});
+
+}
+
+
+function escapeHtml(text){
+
+if(!text)return"";
+
+return text
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
+}
+
+
+function showAddShiftForm(){
+
+editingShiftId=null;
+
+document.getElementById(
+"shiftFormTitle"
+).textContent="➕ Adaugă schimb";
+
+document.getElementById(
+"shiftNotes"
+).value="";
+
+populateShiftTypes();
+
+document.getElementById(
+"shiftTypeSelect"
+).value="";
+
+document.getElementById(
+"shiftModal"
+).style.display="flex";
+
+}
+
+
+function populateShiftTypes(){
+
+const select =
+document.getElementById(
+"shiftTypeSelect"
+);
+
+select.innerHTML=
+`<option value="">
+-- Alege tipul de schimb --
+</option>`;
+
+shiftTypes.forEach(type=>{
+
+const option =
+document.createElement("option");
+
+option.value=type.id;
+
+option.textContent=type.name;
+
+select.appendChild(option);
+
+});
+
+}
+
+
+function saveShift(){
+
+const typeId =
+document.getElementById(
+"shiftTypeSelect"
+).value;
+
+const notes =
+document.getElementById(
+"shiftNotes"
+).value.trim();
+
+if(!typeId){
+
+alert("Alege un tip de schimb.");
+
+return;
+
+}
+
+
+if(!shifts[selectedDate]){
+
+shifts[selectedDate]=[];
+
+}
+
+
+if(editingShiftId){
+
+const shift =
+shifts[selectedDate].find(
+s=>s.id===editingShiftId
+);
+
+if(shift){
+
+shift.typeId=typeId;
+
+shift.notes=notes;
+
+}
+
+}else{
+
+shifts[selectedDate].push({
+
+id:Date.now().toString(),
+
+typeId:typeId,
+
+notes:notes
+
+});
+
+}
+
+
+saveShifts();
+
+closeShiftModal();
+
+renderDayShifts();
+
+renderCalendar();
+
+}
+
+
+function editShift(id){
+
+const dayShifts =
+shifts[selectedDate] || [];
+
+const shift =
+dayShifts.find(
+s=>s.id===id
+);
+
+if(!shift)return;
+
+editingShiftId=id;
+
+document.getElementById(
+"shiftFormTitle"
+).textContent="✏️ Modifică schimb";
+
+populateShiftTypes();
+
+document.getElementById(
+"shiftTypeSelect"
+).value=shift.typeId;
+
+document.getElementById(
+"shiftNotes"
+).value=shift.notes || "";
+
+document.getElementById(
+"shiftModal"
+).style.display="flex";
+
+}
+
+
+function deleteShift(id){
+
+if(!confirm(
+"Sigur vrei să ștergi acest schimb?"
+))return;
+
+if(!shifts[selectedDate])return;
+
+shifts[selectedDate]=
+shifts[selectedDate].filter(
+s=>s.id!==id
+);
+
+if(shifts[selectedDate].length===0){
+
+delete shifts[selectedDate];
+
+}
+
+saveShifts();
+
+renderDayShifts();
+
+renderCalendar();
+
+}
+
+
+function showCreateType(){
+
+editingTypeId=null;
+
+document.getElementById(
+"typeFormTitle"
+).textContent=
+"➕ Creează tip de schimb";
+
+document.getElementById(
+"typeName"
+).value="";
+
+document.getElementById(
+"typeStart"
+).value="";
+
+document.getElementById(
+"typeEnd"
+).value="";
+
+document.getElementById(
+"typeColor"
+).value="#2563eb";
+
+document.getElementById(
+"typeModal"
+).style.display="flex";
+
+}
+
+
+function saveType(){
+
+const name =
+document.getElementById(
+"typeName"
+).value.trim();
+
+const start =
+document.getElementById(
+"typeStart"
+).value;
+
+const end =
+document.getElementById(
+"typeEnd"
+).value;
+
+const color =
+document.getElementById(
+"typeColor"
+).value;
+
+if(!name){
+
+alert(
+"Introdu numele schimbului."
+);
+
+return;
+
+}
+
+
+if(editingTypeId){
+
+const type =
+shiftTypes.find(
+t=>t.id===editingTypeId
+);
+
+if(type){
+
+type.name=name;
+type.start=start;
+type.end=end;
+type.color=color;
+
+}
+
+}else{
+
+shiftTypes.push({
+
+id:"type_"+Date.now(),
+
+name:name,
+
+start:start,
+
+end:end,
+
+color:color
+
+});
+
+}
+
+
+saveTypes();
+
+closeTypeModal();
+
+populateShiftTypes();
+
+renderCalendar();
+
+}
+
+
+function showTypes(){
+
+renderTypeList();
+
+document.getElementById(
+"typesModal"
+).style.display="flex";
+
+}
+
+
+function renderTypeList(){
+
+const list =
+document.getElementById(
+"typeList"
+);
+
+list.innerHTML="";
+
+if(shiftTypes.length===0){
+
+list.innerHTML=
+`<div class="empty-message">
+Nu există tipuri.
+</div>`;
+
+return;
+
+}
+
+
+shiftTypes.forEach(type=>{
+
+const item =
+document.createElement("div");
+
+item.className="type-item";
+
+const hours =
+type.start && type.end
+?`${type.start} - ${type.end}`
+:"";
+
+item.innerHTML=`
+
+<div
+class="type-color"
+style="background:${type.color}">
+</div>
+
+<div class="type-info">
+
+<div class="type-name">
+${escapeHtml(type.name)}
+</div>
+
+${hours?
+`<div class="type-hours">
+⏰ ${hours}
+</div>`:""}
+
+</div>
+
+<div class="shift-actions">
+
+<button
+class="small-button edit-button"
+onclick="editType('${type.id}')">
+
+✏️
+
+</button>
+
+<button
+class="small-button delete-button"
+onclick="deleteType('${type.id}')">
+
+🗑️
+
+</button>
+
+</div>
+
+`;
+
+list.appendChild(item);
+
+});
+
+}
+
+
+function editType(id){
+
+const type =
+shiftTypes.find(
+t=>t.id===id
+);
+
+if(!type)return;
+
+editingTypeId=id;
+
+document.getElementById(
+"typeFormTitle"
+).textContent=
+"✏️ Modifică tipul";
+
+document.getElementById(
+"typeName"
+).value=type.name;
+
+document.getElementById(
+"typeStart"
+).value=type.start || "";
+
+document.getElementById(
+"typeEnd"
+).value=type.end || "";
+
+document.getElementById(
+"typeColor"
+).value=type.color;
+
+document.getElementById(
+"typeModal"
+).style.display="flex";
+
+}
+
+
+function deleteType(id){
+
+const type =
+shiftTypes.find(
+t=>t.id===id
+);
+
+if(!type)return;
+
+const used =
+Object.values(shifts).some(
+dayShifts =>
+dayShifts.some(
+shift=>shift.typeId===id
+)
+);
+
+if(used){
+
+alert(
+"Acest tip este folosit în calendar și nu poate fi șters."
+);
+
+return;
+
+}
+
+
+if(!confirm(
+`Sigur vrei să ștergi "${type.name}"?`
+))return;
+
+shiftTypes=
+shiftTypes.filter(
+t=>t.id!==id
+);
+
+saveTypes();
+
+renderTypeList();
+
+}
+
+
+function closeDayModal(){
+
+document.getElementById(
+"dayModal"
+).style.display="none";
+
+}
+
+
+function closeShiftModal(){
+
+document.getElementById(
+"shiftModal"
+).style.display="none";
+
+}
+
+
+function closeTypeModal(){
+
+document.getElementById(
+"typeModal"
+).style.display="none";
+
+}
+
+
+function closeTypesModal(){
+
+document.getElementById(
+"typesModal"
+).style.display="none";
+
+}
+
+
+function formatDate(dateKey){
+
+const parts=
+dateKey.split("-");
+
+return parts[2]+"."+
+parts[1]+"."+
+parts[0];
+
+}
+
+
+function previousMonth(){
+
+currentDate.setMonth(
+currentDate.getMonth()-1
+);
+
+renderCalendar();
+
+}
+
+
+function nextMonth(){
+
+currentDate.setMonth(
+currentDate.getMonth()+1
+);
+
+renderCalendar();
+
+}
+
+
+function goToday(){
+
+currentDate=new Date();
+
+renderCalendar();
+
+}
+
+
+/* EXPORT */
+
+function exportData(){
+
+const backup={
+
+version:1,
+
+exportedAt:
+new Date().toISOString(),
+
+shifts:shifts,
+
+shiftTypes:shiftTypes
+
+};
+
+const data=
+JSON.stringify(
+backup,
+null,
+2
+);
+
+const blob=
+new Blob(
+[data],
+{
+type:"application/json"
+}
+);
+
+const url=
+URL.createObjectURL(blob);
+
+const link=
+document.createElement("a");
+
+link.href=url;
+
+const date=
+new Date()
+.toISOString()
+.slice(0,10);
+
+link.download=
+`management-ture-backup-${date}.json`;
+
+link.click();
+
+URL.revokeObjectURL(url);
+
+}
+
+
+/* IMPORT */
+
+function importData(event){
+
+const file=
+event.target.files[0];
+
+if(!file)return;
+
+const reader=
+new FileReader();
+
+reader.onload=function(e){
+
+try{
+
+const backup=
+JSON.parse(
+e.target.result
+);
+
+if(
+!backup.shifts ||
+!backup.shiftTypes
+){
+
+alert(
+"Fișierul nu este un backup valid."
+);
+
+return;
+
+}
+
+if(!confirm(
+"Importul va înlocui datele actuale. Continui?"
+))return;
+
+shifts=
+backup.shifts;
+
+shiftTypes=
+backup.shiftTypes;
+
+saveShifts();
+
+saveTypes();
+
+renderCalendar();
+
+alert(
+"Datele au fost importate cu succes!"
+);
+
+}catch(error){
+
+alert(
+"Nu am putut citi fișierul."
+);
+
+}
+
+};
+
+reader.readAsText(file);
+
+event.target.value="";
+
+}
+
+
+renderCalendar();
+
+</script>
+
+</body>
+</html>

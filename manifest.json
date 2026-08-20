@@ -1,0 +1,10 @@
+{
+  "name": "Shift Time",
+  "short_name": "Shift Time",
+  "description": "Aplicație pentru gestionarea schimburilor de tură",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f2f4f8",
+  "theme_color": "#2563eb",
+  "orientation": "portrait"
+}
